@@ -15,21 +15,29 @@ local get_youtrack_token = function()
 	return token:match("^%s*(.-)%s*$")
 end
 
-local function create_branch(branch_name)
-	local obj = vim.system({ "git", "checkout", "-b", branch_name }):wait()
-	if obj.code ~= 0 then
-		vim.notify("An error occurred while creating the branch: " .. obj.stderr, vim.log.levels.ERROR, {})
-		return false
+function M.issues()
+	local token = get_youtrack_token()
+	if not token then
+		print("Could not get token. aborting.")
+		return
 	end
-	vim.notify("Created the local branch: " .. branch_name, vim.log.levels.INFO)
-	return true
+
+	local result = curl.get("https://prima-assicurazioni-spa.myjetbrains.com/youtrack/api/issues", {
+		query = {
+			query = "tag:Payments-Onyx",
+			fields = "id,idReadable,summary",
+			["$top"] = "20",
+		},
+		headers = {
+			authorization = "Bearer " .. token,
+		},
+	})
+
+	result = vim.fn.json_decode(result.body)
+	return result
 end
 
-local function normalize_git_ref_segment(summary)
-	return summary:gsub("[^A-Za-z0-9]+", "-"):lower():gsub("^%-+", ""):gsub("%-+$", "")
-end
-
-local function update_youtrack_state(issue_id)
+function M.update_state(issue_id)
 	local payload = {
 		customFields = {
 			{
@@ -61,18 +69,16 @@ local function update_youtrack_state(issue_id)
 	end
 end
 
-M.youtrack_issues = function()
+function M.get_issue(issue_id)
 	local token = get_youtrack_token()
 	if not token then
 		print("Could not get token. aborting.")
 		return
 	end
 
-	local result = curl.get("https://prima-assicurazioni-spa.myjetbrains.com/youtrack/api/issues", {
+	local result = curl.get("https://prima-assicurazioni-spa.myjetbrains.com/youtrack/api/issues/" .. issue_id, {
 		query = {
-			query = "tag:Payments-Onyx",
 			fields = "id,idReadable,summary",
-			["$top"] = "20",
 		},
 		headers = {
 			authorization = "Bearer " .. token,
@@ -80,28 +86,7 @@ M.youtrack_issues = function()
 	})
 
 	result = vim.fn.json_decode(result.body)
-
-	local selection = { "Other..." }
-	for index, issue in ipairs(result) do
-		selection[index + 1] = issue.idReadable .. " | " .. issue.summary
-	end
-
-	vim.ui.select(selection, {
-		prompt = "What issue do you want to work on ?",
-	}, function(choice, index)
-		if not choice then
-			print("No choice")
-			return
-		end
-		local issue = result[index - 1]
-
-		local branch_created = create_branch(issue.idReadable .. "/" .. normalize_git_ref_segment(issue.summary))
-		if not branch_created then
-			return
-		end
-
-		update_youtrack_state(issue.id)
-	end)
+	return result
 end
 
 return M
