@@ -15,6 +15,17 @@ local get_youtrack_token = function()
 	return token:match("^%s*(.-)%s*$")
 end
 
+local function create_branch(branch_name)
+	local obj = vim.system({ "git", "checkout", "-b", branch_name }):wait()
+	if obj.code ~= 0 then
+		print("An error occurred while creating the branch: " .. obj.stderr)
+	end
+end
+
+local function normalize_git_ref_segment(summary)
+	return summary:gsub("[^A-Za-z0-9]+", "-"):lower():gsub("^%-+", ""):gsub("%-+$", "")
+end
+
 M.youtrack_issues = function()
 	local token = get_youtrack_token()
 	if not token then
@@ -42,12 +53,14 @@ M.youtrack_issues = function()
 
 	vim.ui.select(selection, {
 		prompt = "What issue do you want to work on ?",
-	}, function(choice)
+	}, function(choice, index)
 		if not choice then
 			print("No choice")
 			return
 		end
-		print("Issue is: " .. choice)
+		local issue = result[index - 1]
+
+		create_branch(issue.idReadable .. "/" .. normalize_git_ref_segment(issue.summary))
 	end)
 end
 
