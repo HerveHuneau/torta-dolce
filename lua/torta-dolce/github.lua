@@ -32,14 +32,6 @@ function M.list_issues()
 	print(vim.inspect(result))
 end
 
---curl -L \
--- -X POST \
--- -H "Accept: application/vnd.github+json" \
--- -H "Authorization: Bearer <YOUR-TOKEN>" \
--- -H "X-GitHub-Api-Version: 2022-11-28" \
--- https://api.github.com/repos/OWNER/REPO/pulls \
--- -d '{"title":"Amazing new feature","body":"Please pull these awesome changes in!","head":"octocat:new-feature","base":"master"}'
-
 function M.create_pull_request()
 	local token = get_github_token()
 	if not token then

@@ -1,5 +1,8 @@
 vim.api.nvim_create_user_command("TortaDolce", function(opts)
 	package.loaded["torta-dolce"] = nil
+	package.loaded["torta-dolce.git"] = nil
+	package.loaded["torta-dolce.github"] = nil
+	package.loaded["torta-dolce.youtrack"] = nil
 
 	if opts.args == "startWork" then
 		require("torta-dolce").start_work()

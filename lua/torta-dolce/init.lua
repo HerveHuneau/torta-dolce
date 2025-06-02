@@ -41,12 +41,15 @@ M.start_work = function()
 			return
 		end
 
-		youtrack.update_state(issue.id)
+		youtrack.update_state(issue.id, "In Progress")
 	end)
 end
 
 M.review_work = function()
-	github.create_pull_request()
+	-- github.create_pull_request()
+	local issue_id = git.get_current_branch_name()
+	vim.notify(issue_id, vim.log.levels.INFO, {})
+	-- youtrack.update_state(issue.id, "In Review")
 end
 
 return M
