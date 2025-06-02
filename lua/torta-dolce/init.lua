@@ -46,7 +46,7 @@ M.start_work = function()
 end
 
 M.review_work = function()
-	local issues = github.list_issues()
+	github.create_pull_request()
 end
 
 return M
