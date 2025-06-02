@@ -1,5 +1,6 @@
 local youtrack = require("torta-dolce.youtrack")
 local git = require("torta-dolce.git")
+local github = require("torta-dolce.github")
 
 local M = {}
 local function normalize_git_ref_segment(summary)
@@ -42,6 +43,10 @@ M.start_work = function()
 
 		youtrack.update_state(issue.id)
 	end)
+end
+
+M.review_work = function()
+	local issues = github.list_issues()
 end
 
 return M
