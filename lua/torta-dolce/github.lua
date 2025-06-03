@@ -30,17 +30,18 @@ function M.list_issues()
 	})
 end
 
-function M.create_pull_request(repo, title, branch_name)
+function M.create_pull_request(repo, title, body, branch_name)
 	local token = get_github_token()
 	if not token then
 		return
 	end
 
-	local result = curl.post("https://api.github.com/repos/" .. repo.owner .. "/" .. repo.name .. "/pulls", {
+	local result = curl.post("https://api.github.com/repos/" .. repo.owner .. "/" .. repo.repo .. "/pulls", {
 		body = vim.json.encode({
 			title = title,
-			body = "",
+			body = body,
 			head = branch_name,
+			-- TODO: figure out base branch name
 			base = "main",
 		}, {}),
 		headers = {

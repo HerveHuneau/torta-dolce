@@ -113,6 +113,7 @@ function M.get_issue(issue_id)
 	})
 
 	result = vim.fn.json_decode(result.body)
+	result["url"] = "https://prima-assicurazioni-spa.myjetbrains.com/youtrack/issue/" .. result.idReadable
 	return result
 end
 

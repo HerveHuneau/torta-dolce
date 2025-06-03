@@ -51,29 +51,26 @@ M.review_work = function()
 		return
 	end
 
-	-- PR Title
-	local title = ""
-	local youtrack_id = branch_name:match("^(.*)/.*$")
-	if youtrack_id ~= nil then
-		local issue = youtrack.get_issue(youtrack_id)
-		if issue ~= nil then
-			title = issue.summary
-		end
-	end
-	if title == "" then
-		title = vim.fn.input("Choose a title for the PR", "")
-	end
-
 	local repo = git.get_remote_repo()
 	if not repo then
+		vim.notify("No remote branch found, push your changes to a remote branch first.", vim.log.levels.WARN, {})
 		return
 	end
 
-	local pr = github.create_pull_request(repo, title, branch_name)
+	local issue_id = branch_name:match("^(.*)/.*$")
+	local issue = youtrack.get_issue(issue_id)
+	if not issue then
+		vim.notify("No youtrack card linked to current branch. Nothing to review", vim.log.levels.WARN, {})
+		return
+	end
+
+	local title = issue.summary
+	local body = "Issue: " .. issue["url"]
+
+	local pr = github.create_pull_request(repo, title, body, branch_name)
 	if not pr then
 		return
 	end
-	local issue_id = branch_name:match("^([^/]+)")
 
 	youtrack.update_state(issue_id, "In Review")
 	youtrack.comment(issue_id, "PR " .. repo.repo .. " -> " .. pr.html_url)
