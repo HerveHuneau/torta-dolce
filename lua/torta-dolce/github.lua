@@ -32,7 +32,7 @@ function M.list_issues()
 	print(vim.inspect(result))
 end
 
-function M.create_pull_request()
+function M.create_pull_request(branch_name)
 	local token = get_github_token()
 	if not token then
 		return
@@ -42,7 +42,7 @@ function M.create_pull_request()
 		body = vim.json.encode({
 			title = "Amazing new feature",
 			body = "Please pull these awesome changes in!",
-			head = "test",
+			head = branch_name,
 			base = "main",
 		}, {}),
 		headers = {
