@@ -50,9 +50,33 @@ M.review_work = function()
 	if not branch_name then
 		return
 	end
-	github.create_pull_request(branch_name)
+
+	-- PR Title
+	local title = ""
+	local youtrack_id = branch_name:match("^(.*)/.*$")
+	if youtrack_id ~= nil then
+		local issue = youtrack.get_issue(youtrack_id)
+		if issue ~= nil then
+			title = issue.summary
+		end
+	end
+	if title == "" then
+		title = vim.fn.input("Choose a title for the PR", "")
+	end
+
+	local repo = git.get_remote_repo()
+	if not repo then
+		return
+	end
+
+	local pr = github.create_pull_request(repo, title, branch_name)
+	if not pr then
+		return
+	end
 	local issue_id = branch_name:match("^([^/]+)")
+
 	youtrack.update_state(issue_id, "In Review")
+	youtrack.comment(issue_id, "PR " .. repo.repo .. " -> " .. pr.html_url)
 end
 
 return M

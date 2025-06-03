@@ -1,4 +1,5 @@
 vim.api.nvim_create_user_command("TortaDolce", function(opts)
+	-- Live reload
 	package.loaded["torta-dolce"] = nil
 	package.loaded["torta-dolce.git"] = nil
 	package.loaded["torta-dolce.github"] = nil

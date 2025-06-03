@@ -69,6 +69,33 @@ function M.update_state(issue_id, state)
 	end
 end
 
+function M.comment(issue_id, comment)
+	local token = get_youtrack_token()
+	if not token then
+		print("Could not get token. aborting.")
+		return
+	end
+
+	local payload = {
+		text = comment,
+	}
+
+	local result =
+		curl.post("https://prima-assicurazioni-spa.myjetbrains.com/youtrack/api/issues/" .. issue_id .. "/comments", {
+			body = vim.fn.json_encode(payload),
+			headers = {
+				content_type = "application/json",
+				authorization = "Bearer " .. token,
+			},
+		})
+
+	if result.status ~= 200 then
+		vim.notify("Error while adding the comment to the youtrack card: " .. result.body, vim.log.levels.ERROR, {})
+	else
+		vim.notify("Updated the youtrack card with the link to the PR", vim.log.levels.INFO, {})
+	end
+end
+
 function M.get_issue(issue_id)
 	local token = get_youtrack_token()
 	if not token then

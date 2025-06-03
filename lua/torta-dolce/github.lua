@@ -28,20 +28,18 @@ function M.list_issues()
 			["X-GitHub-Api-Version"] = "2022-11-28",
 		},
 	})
-
-	print(vim.inspect(result))
 end
 
-function M.create_pull_request(branch_name)
+function M.create_pull_request(repo, title, branch_name)
 	local token = get_github_token()
 	if not token then
 		return
 	end
 
-	local result = curl.post("https://api.github.com/repos/HerveHuneau/torta-dolce/pulls", {
+	local result = curl.post("https://api.github.com/repos/" .. repo.owner .. "/" .. repo.name .. "/pulls", {
 		body = vim.json.encode({
-			title = "Amazing new feature",
-			body = "Please pull these awesome changes in!",
+			title = title,
+			body = "",
 			head = branch_name,
 			base = "main",
 		}, {}),
@@ -52,7 +50,14 @@ function M.create_pull_request(branch_name)
 		},
 	})
 
-	print(vim.inspect(result))
+	if result.status ~= 201 then
+		vim.notify("Error while creating the pull request : " .. result.body, vim.log.levels.ERROR, {})
+		return
+	end
+
+	result = vim.fn.json_decode(result.body)
+	vim.notify("Created the PR!" .. result.html_url, vim.log.levels.INFO, {})
+	return result
 end
 
 return M
