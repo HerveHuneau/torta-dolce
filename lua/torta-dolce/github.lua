@@ -30,7 +30,7 @@ function M.list_issues()
 	})
 end
 
-function M.create_pull_request(repo, title, body, branch_name)
+function M.create_pull_request(repo, title, body, branch_name, base_branch_name)
 	local token = get_github_token()
 	if not token then
 		return
@@ -41,8 +41,7 @@ function M.create_pull_request(repo, title, body, branch_name)
 			title = title,
 			body = body,
 			head = branch_name,
-			-- TODO: figure out base branch name
-			base = "main",
+			base = base_branch_name,
 		}, {}),
 		headers = {
 			authorization = "Bearer " .. token,

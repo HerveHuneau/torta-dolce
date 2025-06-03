@@ -58,6 +58,11 @@ M.review_work = function()
 	end
 
 	local issue_id = branch_name:match("^(.*)/.*$")
+	if not issue_id then
+		vim.notify("No issue_id found for current branch. Did you start work?", vim.log.levels.WARN, {})
+		return
+	end
+
 	local issue = youtrack.get_issue(issue_id)
 	if not issue then
 		vim.notify("No youtrack card linked to current branch. Nothing to review", vim.log.levels.WARN, {})
@@ -66,8 +71,9 @@ M.review_work = function()
 
 	local title = issue.summary
 	local body = "Issue: " .. issue["url"]
+	local base_branch_name = git.get_base_branch()
 
-	local pr = github.create_pull_request(repo, title, body, branch_name)
+	local pr = github.create_pull_request(repo, title, body, branch_name, base_branch_name)
 	if not pr then
 		return
 	end
