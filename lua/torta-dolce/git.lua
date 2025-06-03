@@ -38,7 +38,7 @@ function M.get_base_branch()
 	end
 
 	local name = obj.stdout:sub(1, -2)
-	if not name then
+	if name == "" then
 		return "main"
 	end
 	return "master"
