@@ -41,12 +41,18 @@ M.start_work = function()
 			return
 		end
 
-		youtrack.update_state(issue.id)
+		youtrack.update_state(issue.id, "In Progress")
 	end)
 end
 
 M.review_work = function()
-	github.create_pull_request()
+	local branch_name = git.get_current_branch_name()
+	if not branch_name then
+		return
+	end
+	github.create_pull_request(branch_name)
+	local issue_id = branch_name:match("^([^/]+)")
+	youtrack.update_state(issue_id, "In Review")
 end
 
 return M

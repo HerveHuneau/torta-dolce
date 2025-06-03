@@ -37,13 +37,13 @@ function M.issues()
 	return result
 end
 
-function M.update_state(issue_id)
+function M.update_state(issue_id, state)
 	local payload = {
 		customFields = {
 			{
 				name = "State",
 				["$type"] = "StateIssueCustomField",
-				value = { name = "In Progress" },
+				value = { name = state },
 			},
 		},
 	}
