@@ -1,33 +1,13 @@
 local M = {}
 local curl = require("plenary.curl")
+local config = require("torta-dolce.config")
 
 local get_github_token = function()
-	local token = io.open(os.getenv("HOME") .. "/.suite_py/token_github.txt", "r")
-
-	if token then
-		local content = token:read("*a")
-		token:close()
-		token = content
-	else
-		print("Failed to open ~/.suite_py/token_github.txt file. Maybe you should import it ?")
+	local tokens = config.get_tokens()
+	if not tokens then
 		return
 	end
-	return token:match("^%s*(.-)%s*$")
-end
-
-function M.list_issues()
-	local token = get_github_token()
-	if not token then
-		return
-	end
-
-	local result = curl.get("https://api.github.com/issues", {
-		headers = {
-			authorization = "Bearer " .. token,
-			["Accept"] = "application/vnd.github+json",
-			["X-GitHub-Api-Version"] = "2022-11-28",
-		},
-	})
+	return tokens["github"]
 end
 
 function M.create_pull_request(repo, title, body, branch_name, base_branch_name)
