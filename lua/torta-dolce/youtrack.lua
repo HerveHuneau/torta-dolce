@@ -1,18 +1,13 @@
 local M = {}
 local curl = require("plenary.curl")
+local config = require("torta-dolce.config")
 
 local get_youtrack_token = function()
-	local token = io.open(os.getenv("HOME") .. "/.suite_py/token_youtrack.txt", "r")
-
-	if token then
-		local content = token:read("*a")
-		token:close()
-		token = content
-	else
-		print("Failed to open ~/.suite_py/token_youtrack.txt file. Maybe you should import it ?")
+	local tokens = config.get_tokens()
+	if not tokens then
 		return
 	end
-	return token:match("^%s*(.-)%s*$")
+	return tokens["youtrack"]
 end
 
 function M.issues()
@@ -37,7 +32,34 @@ function M.issues()
 	return result
 end
 
+function M.get_issue(issue_id)
+	local token = get_youtrack_token()
+	if not token then
+		print("Could not get token. aborting.")
+		return
+	end
+
+	local result = curl.get("https://prima-assicurazioni-spa.myjetbrains.com/youtrack/api/issues/" .. issue_id, {
+		query = {
+			fields = "id,idReadable,summary",
+		},
+		headers = {
+			authorization = "Bearer " .. token,
+		},
+	})
+
+	result = vim.fn.json_decode(result.body)
+	result["url"] = "https://prima-assicurazioni-spa.myjetbrains.com/youtrack/issue/" .. result.idReadable
+	return result
+end
+
 function M.update_state(issue_id, state)
+	local token = get_youtrack_token()
+	if not token then
+		print("Could not get token. aborting.")
+		return
+	end
+
 	local payload = {
 		customFields = {
 			{
@@ -47,12 +69,6 @@ function M.update_state(issue_id, state)
 			},
 		},
 	}
-
-	local token = get_youtrack_token()
-	if not token then
-		print("Could not get token. aborting.")
-		return
-	end
 
 	local result = curl.post("https://prima-assicurazioni-spa.myjetbrains.com/youtrack/api/issues/" .. issue_id, {
 		body = vim.fn.json_encode(payload),
@@ -94,27 +110,6 @@ function M.comment(issue_id, comment)
 	else
 		vim.notify("Updated the youtrack card with the link to the PR", vim.log.levels.INFO, {})
 	end
-end
-
-function M.get_issue(issue_id)
-	local token = get_youtrack_token()
-	if not token then
-		print("Could not get token. aborting.")
-		return
-	end
-
-	local result = curl.get("https://prima-assicurazioni-spa.myjetbrains.com/youtrack/api/issues/" .. issue_id, {
-		query = {
-			fields = "id,idReadable,summary",
-		},
-		headers = {
-			authorization = "Bearer " .. token,
-		},
-	})
-
-	result = vim.fn.json_decode(result.body)
-	result["url"] = "https://prima-assicurazioni-spa.myjetbrains.com/youtrack/issue/" .. result.idReadable
-	return result
 end
 
 return M
