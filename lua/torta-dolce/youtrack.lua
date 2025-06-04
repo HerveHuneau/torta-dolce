@@ -47,6 +47,14 @@ function M.get_issue(issue_id)
 			authorization = "Bearer " .. token,
 		},
 	})
+	if result.status ~= 200 then
+		vim.notify(
+			"Error while getting the youtrack card " .. issue_id .. "error: " .. result.body,
+			vim.log.levels.ERROR,
+			{}
+		)
+		return
+	end
 
 	result = vim.fn.json_decode(result.body)
 	result["url"] = "https://prima-assicurazioni-spa.myjetbrains.com/youtrack/issue/" .. result.idReadable

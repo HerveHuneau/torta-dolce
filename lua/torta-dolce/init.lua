@@ -57,7 +57,7 @@ M.review_work = function()
 		return
 	end
 
-	local issue_id = branch_name:match("^(.*)/.*$")
+	local issue_id = branch_name:match("^([a-zA-Z0-9-]*)/.*$")
 	if not issue_id then
 		vim.notify("No issue_id found for current branch. Did you start work?", vim.log.levels.WARN, {})
 		return

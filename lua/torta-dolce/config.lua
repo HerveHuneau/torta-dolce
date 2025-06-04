@@ -33,7 +33,11 @@ M.get_tokens = function()
 	}):wait()
 
 	if token_result.code ~= 0 then
-		vim.notify("Could not find stored password in keyring. Login to suite_py first", vim.log.levels.ERROR, {})
+		vim.notify(
+			"Could not find stored password in keyring. error: " .. token_result.stderr,
+			vim.log.levels.ERROR,
+			{}
+		)
 		return
 	end
 
