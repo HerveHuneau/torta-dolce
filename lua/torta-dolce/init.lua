@@ -69,7 +69,7 @@ M.review_work = function()
 		return
 	end
 
-	local title = issue.summary
+	local title = "[" .. issue_id .. "] " .. issue.summary
 	local body = "Issue: " .. issue["url"]
 	local base_branch_name = git.get_base_branch()
 
