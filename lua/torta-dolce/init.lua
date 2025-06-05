@@ -1,6 +1,7 @@
 local youtrack = require("torta-dolce.youtrack")
 local git = require("torta-dolce.git")
 local github = require("torta-dolce.github")
+local config = require("torta-dolce.config")
 
 local M = {}
 local function normalize_git_ref_segment(summary)
@@ -27,7 +28,7 @@ M.start_work = function()
 
 		local issue
 		if index == 1 then
-			local issue_id = vim.fn.input("What issue do you want to work on ?", "PAY-")
+			local issue_id = vim.fn.input("What issue do you want to work on ?", config.user.default_slug)
 			issue = youtrack.get_issue(issue_id)
 			if not issue then
 				return
@@ -41,7 +42,7 @@ M.start_work = function()
 			return
 		end
 
-		youtrack.update_state(issue.id, "In Progress")
+		youtrack.update_state(issue.id, config.youtrack.picked_state)
 	end)
 end
 
@@ -78,7 +79,7 @@ M.review_work = function()
 		return
 	end
 
-	youtrack.update_state(issue_id, "In Review")
+	youtrack.update_state(issue_id, config.youtrack.review_state)
 	youtrack.comment(issue_id, "PR " .. repo.repo .. " -> " .. pr.html_url)
 end
 

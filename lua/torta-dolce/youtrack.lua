@@ -2,22 +2,11 @@ local M = {}
 local curl = require("plenary.curl")
 local config = require("torta-dolce.config")
 
-local get_youtrack_token = function()
-	local tokens = config.get_tokens()
-	if not tokens then
-		return
-	end
-	return tokens["youtrack"]
-end
+local URL = config.youtrack.url
+local token = config["tokens"]["youtrack"]
 
 function M.issues()
-	local token = get_youtrack_token()
-	if not token then
-		print("Could not get token. aborting.")
-		return
-	end
-
-	local result = curl.get("https://prima-assicurazioni-spa.myjetbrains.com/youtrack/api/issues", {
+	local result = curl.get(URL .. "/api/issues", {
 		query = {
 			query = "tag:Payments-Onyx",
 			fields = "id,idReadable,summary",
@@ -33,13 +22,7 @@ function M.issues()
 end
 
 function M.get_issue(issue_id)
-	local token = get_youtrack_token()
-	if not token then
-		print("Could not get token. aborting.")
-		return
-	end
-
-	local result = curl.get("https://prima-assicurazioni-spa.myjetbrains.com/youtrack/api/issues/" .. issue_id, {
+	local result = curl.get(URL .. "/api/issues/" .. issue_id, {
 		query = {
 			fields = "id,idReadable,summary",
 		},
@@ -57,17 +40,11 @@ function M.get_issue(issue_id)
 	end
 
 	result = vim.fn.json_decode(result.body)
-	result["url"] = "https://prima-assicurazioni-spa.myjetbrains.com/youtrack/issue/" .. result.idReadable
+	result["url"] = URL .. "/issue/" .. result.idReadable
 	return result
 end
 
 function M.update_state(issue_id, state)
-	local token = get_youtrack_token()
-	if not token then
-		print("Could not get token. aborting.")
-		return
-	end
-
 	local payload = {
 		customFields = {
 			{
@@ -78,7 +55,7 @@ function M.update_state(issue_id, state)
 		},
 	}
 
-	local result = curl.post("https://prima-assicurazioni-spa.myjetbrains.com/youtrack/api/issues/" .. issue_id, {
+	local result = curl.post(URL .. "/api/issues/" .. issue_id, {
 		body = vim.fn.json_encode(payload),
 		headers = {
 			content_type = "application/json",
@@ -94,24 +71,17 @@ function M.update_state(issue_id, state)
 end
 
 function M.comment(issue_id, comment)
-	local token = get_youtrack_token()
-	if not token then
-		print("Could not get token. aborting.")
-		return
-	end
-
 	local payload = {
 		text = comment,
 	}
 
-	local result =
-		curl.post("https://prima-assicurazioni-spa.myjetbrains.com/youtrack/api/issues/" .. issue_id .. "/comments", {
-			body = vim.fn.json_encode(payload),
-			headers = {
-				content_type = "application/json",
-				authorization = "Bearer " .. token,
-			},
-		})
+	local result = curl.post(URL .. "/api/issues/" .. issue_id .. "/comments", {
+		body = vim.fn.json_encode(payload),
+		headers = {
+			content_type = "application/json",
+			authorization = "Bearer " .. token,
+		},
+	})
 
 	if result.status ~= 200 then
 		vim.notify("Error while adding the comment to the youtrack card: " .. result.body, vim.log.levels.ERROR, {})
