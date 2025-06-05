@@ -2,13 +2,14 @@ local M = {}
 local curl = require("plenary.curl")
 local config = require("torta-dolce.config")
 
-function M.create_pull_request(repo, title, body, branch_name, base_branch_name)
+function M.create_pull_request(repo, title, body, branch_name, base_branch_name, draft)
 	local result = curl.post("https://api.github.com/repos/" .. repo.owner .. "/" .. repo.repo .. "/pulls", {
 		body = vim.json.encode({
 			title = title,
 			body = body,
 			head = branch_name,
 			base = base_branch_name,
+			draft = draft,
 		}, {}),
 		headers = {
 			authorization = "Bearer " .. config.tokens.github,
