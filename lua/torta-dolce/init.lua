@@ -74,13 +74,22 @@ M.review_work = function()
 	local body = "Issue: " .. issue["url"]
 	local base_branch_name = git.get_base_branch()
 
-	local pr = github.create_pull_request(repo, title, body, branch_name, base_branch_name)
-	if not pr then
-		return
-	end
+	vim.ui.select({ "Yes", "No" }, {
+		prompt = "Do you want to open the PR as a draft?",
+	}, function(choice, _)
+		if not choice then
+			return
+		end
 
-	youtrack.update_state(issue_id, config.youtrack.review_state)
-	youtrack.comment(issue_id, "PR " .. repo.repo .. " -> " .. pr.html_url)
+		local draft = choice == "Yes"
+		local pr = github.create_pull_request(repo, title, body, branch_name, base_branch_name, draft)
+		if not pr then
+			return
+		end
+
+		-- youtrack.update_state(issue_id, config.youtrack.review_state)
+		-- youtrack.comment(issue_id, "PR " .. repo.repo .. " -> " .. pr.html_url)
+	end)
 end
 
 return M
