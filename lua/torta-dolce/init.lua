@@ -128,6 +128,7 @@ M.merge_pr = function()
 	local commit_message = vim.fn.input("Commit message for merge: ")
 
 	github.merge_pull_request(repo, pr.number, commit_title, commit_message)
+	youtrack.update_state(issue_id, config.youtrack.merged_state)
 end
 
 return M
