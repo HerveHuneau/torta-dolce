@@ -77,7 +77,6 @@ function M.merge_pull_request(repo, pr_number, commit_title, commit_message)
 		body = vim.json.encode({
 			commit_title = commit_title,
 			commit_message = commit_message,
-			merge_method = "squash", -- "merge", "squash", or "rebase"
 		}, {}),
 		headers = {
 			authorization = "Bearer " .. config.tokens.github,
