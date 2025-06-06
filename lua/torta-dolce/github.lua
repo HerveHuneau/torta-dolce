@@ -28,4 +28,6 @@ function M.create_pull_request(repo, title, body, branch_name, base_branch_name,
 	return result
 end
 
+function M.get_pull_request(repo, branch_name) end
+
 return M
