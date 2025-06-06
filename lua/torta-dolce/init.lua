@@ -116,10 +116,14 @@ M.merge_pr = function()
 		return
 	end
 
-	print(branch_name)
 	local pr = github.get_pull_request(repo, branch_name)
 	if not pr then
 		vim.notify("No pull request found for current branch.", vim.log.levels.WARN, {})
+		return
+	end
+
+	if pr.draft or not pr.mergeable or pr.mergeable_state ~= "clean" then
+		vim.notify("Pull request is not in a mergeable state. Please check it on Github", vim.log.levels.WARN, {})
 		return
 	end
 
