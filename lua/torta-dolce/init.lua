@@ -87,8 +87,8 @@ M.review_work = function()
 			return
 		end
 
-		-- youtrack.update_state(issue_id, config.youtrack.review_state)
-		-- youtrack.comment(issue_id, "PR " .. repo.repo .. " -> " .. pr.html_url)
+		youtrack.update_state(issue_id, config.youtrack.review_state)
+		youtrack.comment(issue_id, "PR " .. repo.repo .. " -> " .. pr.html_url)
 	end)
 end
 
