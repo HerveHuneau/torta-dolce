@@ -122,6 +122,11 @@ M.merge_pr = function()
 		return
 	end
 
+	if not pr.mergeable or pr.merge_state ~= "clean" then
+		vim.notify("Pull request is not mergeable. Please check it on Github", vim.log.levels.WARN, {})
+		return
+	end
+
 	local title = "[" .. issue_id .. "] " .. issue.summary
 	local commit_title = vim.fn.input("Commit title for merge: ", title)
 	local commit_message = vim.fn.input("Commit message for merge: ")
