@@ -122,8 +122,8 @@ M.merge_pr = function()
 		return
 	end
 
-	if not pr.mergeable or pr.mergeable_state ~= "clean" then
-		vim.notify("Pull request is not mergeable. Please check it on Github", vim.log.levels.WARN, {})
+	if pr.draft or not pr.mergeable or pr.mergeable_state ~= "clean" then
+		vim.notify("Pull request is not in a mergeable state. Please check it on Github", vim.log.levels.WARN, {})
 		return
 	end
 
