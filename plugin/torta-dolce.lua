@@ -10,7 +10,9 @@ vim.api.nvim_create_user_command("TortaDolce", function(opts)
 		require("torta-dolce").start_work()
 	elseif opts.args == "reviewWork" then
 		require("torta-dolce").review_work()
+	elseif opts.args == "mergePR" then
+		require("torta-dolce").merge_pr()
 	else
-		vim.notify("Only startWork or reviewWork implemented yet", vim.log.levels.WARN, {})
+		vim.notify("Only startWork, reviewWork and mergePR are implemented yet", vim.log.levels.WARN, {})
 	end
 end, { nargs = "+" })

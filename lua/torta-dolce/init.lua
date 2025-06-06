@@ -92,4 +92,42 @@ M.review_work = function()
 	end)
 end
 
+M.merge_pr = function()
+	local branch_name = git.get_current_branch_name()
+	if not branch_name then
+		return
+	end
+
+	local repo = git.get_remote_repo()
+	if not repo then
+		vim.notify("No remote branch found, push your changes to a remote branch first.", vim.log.levels.WARN, {})
+		return
+	end
+
+	local issue_id = branch_name:match("^([a-zA-Z0-9-]*)/.*$")
+	if not issue_id then
+		vim.notify("No issue_id found for current branch. Did you start work?", vim.log.levels.WARN, {})
+		return
+	end
+
+	local issue = youtrack.get_issue(issue_id)
+	if not issue then
+		vim.notify("No youtrack card linked to current branch. Nothing to review", vim.log.levels.WARN, {})
+		return
+	end
+
+	print(branch_name)
+	local pr = github.get_pull_request(repo, branch_name)
+	if not pr then
+		vim.notify("No pull request found for current branch.", vim.log.levels.WARN, {})
+		return
+	end
+
+	local title = "[" .. issue_id .. "] " .. issue.summary
+	local commit_title = vim.fn.input("Commit title for merge: ", title)
+	local commit_message = vim.fn.input("Commit message for merge: ")
+
+	github.merge_pull_request(repo, pr.number, commit_title, commit_message)
+end
+
 return M
