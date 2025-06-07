@@ -5,6 +5,24 @@ local config = require("torta-dolce.config")
 local URL = config.youtrack.url
 local token = config["tokens"]["youtrack"]
 
+function M.get_current_user()
+	local result = curl.get(URL .. "/api/users/me", {
+		query = {
+			fields = "login",
+		},
+		headers = {
+			authorization = "Bearer " .. token,
+		},
+	})
+
+	if result.status ~= 200 then
+		return
+	end
+
+	result = vim.fn.json_decode(result.body)
+	return result
+end
+
 function M.issues()
 	local result = curl.get(URL .. "/api/issues", {
 		query = {

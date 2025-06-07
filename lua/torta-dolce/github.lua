@@ -2,10 +2,26 @@ local M = {}
 local curl = require("plenary.curl")
 local config = require("torta-dolce.config")
 
-local GITHUB_API_URL = "https://api.github.com/repos/"
+local GITHUB_API_URL = "https://api.github.com"
+local GITHUB_REPOS = GITHUB_API_URL .. "/repos/"
+local ORGANIZATION = "primait"
+
+function M.check()
+	local result = curl.get(GITHUB_API_URL .. "/orgs/" .. ORGANIZATION, {
+		headers = {
+			authorization = "Bearer " .. config.tokens.github,
+		},
+	})
+
+	if result.status ~= 200 then
+		return false
+	end
+
+	return true
+end
 
 function M.create_pull_request(repo, title, body, branch_name, base_branch_name, draft)
-	local result = curl.post(GITHUB_API_URL .. repo.owner .. "/" .. repo.repo .. "/pulls", {
+	local result = curl.post(GITHUB_REPOS .. repo.owner .. "/" .. repo.repo .. "/pulls", {
 		body = vim.json.encode({
 			title = title,
 			body = body,
@@ -31,7 +47,7 @@ function M.create_pull_request(repo, title, body, branch_name, base_branch_name,
 end
 
 function M.get_pull_request(repo, branch_name)
-	local result = curl.get(GITHUB_API_URL .. repo.owner .. "/" .. repo.repo .. "/pulls", {
+	local result = curl.get(GITHUB_REPOS .. repo.owner .. "/" .. repo.repo .. "/pulls", {
 		query = {
 			head = repo.owner .. ":" .. branch_name,
 		},
@@ -56,7 +72,7 @@ function M.get_pull_request(repo, branch_name)
 	end
 
 	local pr_details_response =
-		curl.get(GITHUB_API_URL .. repo.owner .. "/" .. repo.repo .. "/pulls/" .. first_pr.number, {
+		curl.get(GITHUB_REPOS .. repo.owner .. "/" .. repo.repo .. "/pulls/" .. first_pr.number, {
 			headers = {
 				authorization = "Bearer " .. config.tokens.github,
 				["Accept"] = "application/vnd.github.raw+json",
@@ -73,7 +89,7 @@ function M.get_pull_request(repo, branch_name)
 end
 
 function M.merge_pull_request(repo, pr_number, commit_title, commit_message)
-	local result = curl.put(GITHUB_API_URL .. repo.owner .. "/" .. repo.repo .. "/pulls/" .. pr_number .. "/merge", {
+	local result = curl.put(GITHUB_REPOS .. repo.owner .. "/" .. repo.repo .. "/pulls/" .. pr_number .. "/merge", {
 		body = vim.json.encode({
 			commit_title = commit_title,
 			commit_message = commit_message,
